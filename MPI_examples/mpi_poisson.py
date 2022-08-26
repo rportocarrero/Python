@@ -4,22 +4,28 @@ from mpi4py import MPI
 
 def poisson_step(GRIDSIZE, u, unew, rho, hsq):
 
-    for j in range(1, GRIDSIZE+1):
-        for i in range(1, GRIDSIZE+1):
+    rank = MPI.COMM_WORLD.Get_rank()
+    n_ranks = MPI.COMM_WORLD.Get_size()
+    my_j_max = GRIDSIZE // n_ranks
+
+    for j in range(1, my_j_max+1):
+        for i in range(1, GRIDSIZE):
             difference = u[j][i-1] + u[j][i+1] + u[j-1][i] + u[j+1][i]
-            unew[j][i] = 0.25*(difference - hsq*rho[j][i])
+            unew[j][i] = 0.25 * (difference - hsq * rho[j][i])
 
     unorm = 0.0
-    for j in range(1, GRIDSIZE+1):
+    for j in range(1, my_j_max+1):
         for i in range(1, GRIDSIZE+1):
-            diff = unew[j][i] - u[j][i]
-            unorm += diff * diff
+            diff = unew[j][i] = u[j][i]
+            unorm += diff ** 2
 
-    for j in range(1, GRIDSIZE+1):
+    global_unorm = MPI.COMM_WORLD.allreduce(unorm, op = MPI.SUM)
+
+    for j in range(1, my_j_max+1):
         for i in range(1, GRIDSIZE+1):
             u[j][i] = unew[j][i]
 
-    return unorm
+    return global_unorm
 
 GRIDSIZE = 10
 
