@@ -1,3 +1,3 @@
 .ipynb_checkpoints/
 CFD_Example/Result/
-CFD_Example/__pycache__/
+*/__pycache__
