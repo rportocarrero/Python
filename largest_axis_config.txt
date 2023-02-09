@@ -1,0 +1,4 @@
+Iertia Tensor: [0.299, 0.408, 0.116]
+Initial Angular Velocity: [0.1, 4, 0.1]
+Timestep: 0.001
+End Time: 20
